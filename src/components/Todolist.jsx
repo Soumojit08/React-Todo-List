@@ -1,106 +1,103 @@
-import { Checkbox } from "@mui/material";
+import { Checkbox, Button } from "@mui/material";
 import { orange } from "@mui/material/colors";
 import React, { useState } from "react";
 
 const Todolist = () => {
-  const label = { inputProps: { "aria-label": "Checkbox demo" } };
+  const [tasks, setTasks] = useState([]); // Store tasks
+  const [completedTasks, setCompletedTasks] = useState([]); // Store completed tasks
+  const [newTask, setNewTask] = useState(""); // New task input
 
-  // State to store tasks
-  const [tasks, setTasks] = useState([
-    { id: 1, title: "Complete ADE assignment", completed: false },
-    { id: 2, title: "Complete Economics assignment", completed: false },
-    {
-      id: 3,
-      title: "Complete Computer Organization assignment",
-      completed: false,
-    },
-  ]);
-
-  // Function to handle task completion
-  const handleTaskCompletion = (taskId) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === taskId ? { ...task, completed: !task.completed } : task
-      )
-    );
+  const addTask = () => {
+    if (newTask) {
+      setTasks([...tasks, { task: newTask, id: tasks.length + 1 }]);
+      setNewTask(""); // Clear input field
+    }
   };
 
-  // Function to add a new task (for simplicity, using a static new task for now)
-  const addNewTask = () => {
-    const newTask = {
-      id: tasks.length + 1,
-      title: `New Task ${tasks.length + 1}`,
-      completed: false,
-    };
-    setTasks([...tasks, newTask]);
+  const completeTask = (index) => {
+    const taskToComplete = tasks[index];
+    setCompletedTasks([...completedTasks, taskToComplete]); // Move task to completed
+    setTasks(tasks.filter((_, i) => i !== index)); // Remove from pending
+  };
+
+  const deleteTask = (index) => {
+    setCompletedTasks(completedTasks.filter((_, i) => i !== index)); // Remove from completed
   };
 
   return (
     <div className="w-full flex items-start">
-      {/* Left Section (Incomplete Tasks) */}
-      <section id="left" className="w-1/2 flex flex-col items-center py-7">
-        <h1 className="text-3xl mb-6 font-semibold">Tasks to do Today</h1>
+      <section id="left" className="w-1/2 flex flex-col items-center py-10">
+        <h1 className="text-3xl font-semibold mb-4">Pending Tasks</h1>
         {tasks.map((task, index) => (
           <div
-            key={task.id}
-            className="card mb-6 h-32 main-border w-3/4 rounded-xl px-4 py-3 hover:shadow-lg transition"
+            key={index}
+            className="card mb-6 h-32 main-border w-3/4 rounded-xl px-3 py-2 hover:shadow-lg transition"
           >
-            <h1 className="text-2xl font-semibold">Task {index + 1}</h1>
+            <h1 className="text-2xl font-semibold">Task {task.id}</h1>
             <div className="flex w-full h-16 items-center justify-between px-8 space-x-4">
-              <p className="text-lg">{task.title}</p>
+              <p className="text-lg">{task.task}</p>
               <Checkbox
-                {...label}
-                checked={task.completed}
-                onChange={() => handleTaskCompletion(task.id)}
                 sx={{
                   color: orange[600],
-                  "&.Mui-checked": {
-                    color: orange[400],
-                    transition: "color 0.3s ease", // Transition for smooth checkbox effect
-                  },
+                  "&.Mui-checked": { color: orange[400] },
                 }}
+                onClick={() => completeTask(index)}
               />
             </div>
           </div>
         ))}
 
-        <div>
-          <button
-            className="bg-orange-500 text-white text-xl px-16 py-4 rounded-md mt-6 hover:bg-orange-600 transition"
-            onClick={addNewTask}
+        {/* Input field and Add Task button */}
+        <div className="flex space-x-4">
+          <input
+            type="text"
+            value={newTask}
+            onChange={(e) => setNewTask(e.target.value)}
+            placeholder="Enter new task"
+            className="border border-gray-400 px-4 py-2 rounded-md"
+          />
+          <Button
+            onClick={addTask}
+            variant="contained"
+            sx={{
+              backgroundColor: orange[600],
+              "&:hover": { backgroundColor: orange[400] },
+            }}
           >
-            Add Tasks
-          </button>
+            Add Task
+          </Button>
         </div>
       </section>
 
-      {/* Right Section (Completed Tasks) */}
-      <section id="right" className="w-1/2 flex flex-col items-center py-7">
-        <h1 className="text-3xl mb-6 font-semibold">Completed Tasks</h1>
-        {tasks
-          .filter((task) => task.completed)
-          .map((task, index) => (
-            <div
-              key={task.id}
-              className="card h-32 main-border w-3/4 rounded-xl px-4 py-3 mb-6"
-            >
-              <h1 className="text-2xl font-semibold">Task {index + 1}</h1>
-              <div className="flex w-full h-14 items-center justify-between px-8">
-                <p className="text-lg line-through">{task.title}</p>
+      <section id="right" className="w-1/2 flex flex-col items-center py-10">
+        <h1 className="text-3xl font-semibold mb-4">Completed Tasks</h1>
+        {completedTasks.map((task, index) => (
+          <div
+            key={index}
+            className="card h-32 main-border w-3/4 rounded-xl px-3 py-2 mb-6"
+          >
+            <h1 className="text-2xl font-semibold">Task {task.id}</h1>
+            <div className="flex w-full h-14 items-center justify-between px-8">
+              <p className="text-lg line-through">Completed: {task.task}</p>
+              <div className="flex space-x-4">
                 <Checkbox
                   checked
-                  {...label}
                   sx={{
                     color: orange[600],
-                    "&.Mui-checked": {
-                      color: orange[400],
-                      transition: "color 0.3s ease", // Transition for smooth checkbox effect
-                    },
+                    "&.Mui-checked": { color: orange[400] },
                   }}
                 />
+                <Button
+                  onClick={() => deleteTask(index)}
+                  variant="outlined"
+                  color="error"
+                >
+                  Delete
+                </Button>
               </div>
             </div>
-          ))}
+          </div>
+        ))}
       </section>
     </div>
   );
