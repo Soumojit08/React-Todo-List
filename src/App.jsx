@@ -7,7 +7,7 @@ const App = () => {
     <>
       <div>
         <Navbar />
-        <div className="flex items-center justify-center">
+        <div className="flex w-full">
           <Todolist />
         </div>
       </div>
